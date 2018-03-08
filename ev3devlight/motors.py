@@ -1,4 +1,4 @@
-import time
+from time import sleep
 from .fileio import read_int, read_str, write_int, write_str, get_sensor_or_motor_path, write_duty
 
 class Motor():
@@ -38,7 +38,7 @@ class Motor():
         self.path = get_sensor_or_motor_path('tacho-motor', self.port)
 
         # Open files for fast reading and writing
-        self.position_file = open(self.path + '/position', 'rb')
+        self.position_file = open(self.path + '/position', 'r+b')
         self.speed_file = open(self.path + '/speed', 'rb')
         self.speed_sp_file = open(self.path + '/speed_sp', 'w')
         self.duty_sp_file = open(self.path + '/duty_cycle_sp', 'w')
@@ -70,12 +70,17 @@ class Motor():
 
         # Process the user specified maximum speed of the motor/mechanism, if specified
         if max_speed is not None and max_speed < self.MAX_SPEED:
-            self.MAX_SPEED = max_speed
+            self.MAX_SPEED = max_speed          
 
     @property
     def position(self):
         """Get motor/mechanism position in degrees"""
         return read_int(self.position_file)/self.gear_ratio
+
+    @position.setter
+    def position(self, new_position):
+        """Set motor/mechanism position in degrees"""
+        write_int(self.position_file, new_position*self.gear_ratio)    
 
     @property
     def speed(self):
@@ -88,8 +93,8 @@ class Motor():
 
     def run(self, speed):
         """Turn on the motor/mechanism at a given speed setpoint in degrees per second"""
-        scaled_speed = self.limit(speed*self.gear_ratio)
-        write_int(self.speed_sp_file, scaled_speed)
+        limited_speed = self.limit(speed)
+        write_int(self.speed_sp_file, limited_speed*self.gear_ratio)
         write_str(self.command_file, 'run-forever') 
 
     def duty(self, duty):
@@ -102,13 +107,15 @@ class Motor():
         write_str(self.command_file, 'stop') 
 
     def reset_all_settings(self):
-        write_str(self.command_file, 'reset')      
+        write_str(self.command_file, 'reset')    
 
-    def reset_encoder(self):
-        pass       
-        # TODO: reset encoder without altering other properties   
+    @property
+    def stalled(self):
+        return 'stalled' in self.state
 
-    # TODO: WAIT FOR STALLED
+    def wait_for_stalled(self):
+        while not self.stalled:
+            sleep(0.001)
 
     def set_polarity_normal(self):
         write_str(self.polarity_file, 'normal')
@@ -128,13 +135,13 @@ class Motor():
         """Return True when position is near the target with the specified tolerance"""
         return target - self.setpoint_tolerance <= self.position <= target + self.setpoint_tolerance
 
-    def go_to(self, target, speed, wait=False):
+    def go_to(self, target, speed, wait=True):
         "Go to a target at a desired speed"
         if not self.running and not self.at_target(target):
             # Write target
             write_int(self.position_sp_file, target*self.gear_ratio) 
             # Write speed setpoint
-            write_int(self.speed_sp_file, abs(self.limit(speed*self.gear_ratio))) 
+            write_int(self.speed_sp_file, abs(self.limit(speed)*self.gear_ratio)) 
             # Start moving
             write_str(self.command_file, 'run-to-abs-pos') 
             # Wait for completion if requested
@@ -209,3 +216,52 @@ class DriveBase:
         # Stop robot by stopping motors
         self.left_motor.stop()
         self.right_motor.stop()    
+
+class Mechanism():
+    """Class for mechanisms with a fixed stop and fixed targets"""
+    
+    def __init__(self, motor, targets, default_speed, touch_sensor=None, reset_immediately=True):
+
+        # Check that the reset target exists, and that is indeed either the highest or lowest target
+        assert targets['reset'] in [max(targets.values()), min(targets.values())], "Targets must include reset target"
+
+        # Determine in which direction the reset target is relative to all other targets
+        self.reset_forward = True if targets['reset'] == max(targets.values()) else False
+
+        # Store the initialization arguments for later use
+        self.motor = motor
+        self.targets = targets
+        self.default_speed = default_speed
+        self.touch_sensor = touch_sensor
+
+        # Reset the mechanism
+        if reset_immediately:
+            self.reset()
+    
+    def wait_for_stop(self):
+        # Check if touch sensor was chosen as the reset switch
+        if self.touch_sensor is not None:
+            # If so, wait for the touch sensor to become pressed by the mechanism
+            self.touch_sensor.wait_for_press()
+        else:
+            # If there is no touch sensor, wait for the motor to stall
+            self.motor.wait_for_stalled()
+
+    def reset(self):
+        # Turn the motor on in the direction of the reset target
+        if self.reset_forward:
+            self.motor.run(self.default_speed)
+        else:
+            self.motor.run(-self.default_speed)
+
+        # Wait for the motor to reach the reset
+        self.wait_for_stop()
+        self.motor.stop()
+
+        # Set the current motor position equal to the reset target
+        self.motor.position = self.targets['reset']
+
+    def go_to_target(self, target, speed=None):
+        if speed is None:
+            speed = self.default_speed
+        self.motor.go_to(self.targets[target], speed, wait=True)

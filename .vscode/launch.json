@@ -20,10 +20,16 @@
             ]
         },
         {
-            "name": "Download and Run",
+            "name": "Main Example",
             "type": "ev3devBrowser",
             "request": "launch",
             "program": "/home/robot/ev3devlight/example_main.py"
-        }
+        },
+        {
+            "name": "Testing",
+            "type": "ev3devBrowser",
+            "request": "launch",
+            "program": "/home/robot/ev3devlight/example_test.py"
+        }        
     ]
 }
