@@ -1,7 +1,8 @@
-"""Include module if code should run on either the EV3 or on a laptop/PC."""
-from .fileio import realrobot
+"""Module to generate dummy EV3 hardware files."""
 
-if not realrobot():
+
+def make_files():
+    """Generate dummy EV3 hardware files."""
     # This code generates dummy hardware files such that the code
     # can run on a PC, for easier debugging.
     from os import makedirs
@@ -16,16 +17,16 @@ if not realrobot():
                 dummy_file.write(content)
 
     # Dummy content
-    NA = 'n/a'
+    na = 'n/a'
 
     # Dictionary of motor files and default content
     motor_files = {
-        'address': NA,
-        'command': NA,
+        'address': na,
+        'command': na,
         'commands': 'run-forever run-to-abs-pos \
                      run-to-rel-pos run-timed run-direct stop reset',
         'count_per_rot': '360',
-        'driver_name': NA,
+        'driver_name': na,
         'duty_cycle': '0',
         'duty_cycle_sp': '0',
         'hold_pid/Kp': '0',
@@ -42,7 +43,7 @@ if not realrobot():
         'speed_pid/Ki': '0',
         'speed_pid/Kd': '0',
         'speed_sp': '0',
-        'state': NA,
+        'state': na,
         'stop_action': 'coast',
         'stop_actions': 'coast brake hold',
         'time_sp': '0'
@@ -50,18 +51,18 @@ if not realrobot():
 
     # Dictionary of sensor files and default content
     sensor_files = {
-        'address': NA,
-        'bin_data': NA,
+        'address': na,
+        'bin_data': na,
         'bin_data_format': 's8',
-        'command': NA,
-        'commands': NA,
+        'command': na,
+        'commands': na,
         'decimals': '0',
-        'driver_name': NA,
-        'fw_version': NA,
-        'mode': NA,
-        'modes': NA,
+        'driver_name': na,
+        'fw_version': na,
+        'mode': na,
+        'modes': na,
         'num_values': '1',
-        'poll_ms': NA,
+        'poll_ms': na,
         'units': 'pct',
         'value0': '12',
         'value1': '0',

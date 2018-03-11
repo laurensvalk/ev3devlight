@@ -2,7 +2,7 @@
 from os import listdir
 
 
-def realrobot():
+def real_robot():
     """Check if program is being executed on an ev3dev device."""
     # Checking for a fixed file unique to ev3dev might be faster.
     if 'lego-sensor' in listdir('/sys/class/'):
@@ -56,7 +56,7 @@ def get_sensor_or_motor_path(device_type, port):
     /sys/class/tacho-motor/motor2
 
     """
-    if realrobot():
+    if real_robot():
         base_dir = '/sys/class/' + device_type
     else:
         base_dir = 'hardware/' + device_type
