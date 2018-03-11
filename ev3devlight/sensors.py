@@ -1,9 +1,14 @@
-from .fileio import read_int, read_str, get_sensor_or_motor_path
+"""Module for standard EV3 sensors."""
+
+from .fileio import read_int, get_sensor_or_motor_path
 from time import sleep
 
+
 class Touch():
-    """Configure Touch Sensor"""
+    """Configure Touch Sensor."""
+
     def __init__(self, port):
+        """Initialize touch sensor."""
         self.port = port
         self.path = get_sensor_or_motor_path('lego-sensor', self.port)
         self.value_file = open(self.path + '/value0', 'rb')
@@ -19,24 +24,29 @@ class Touch():
         return not self.pressed
 
     def wait_for_press(self):
-        "Pause until the sensor is pressed."
+        """Pause until the sensor is pressed."""
         while not self.pressed:
             sleep(0.001)
 
     def wait_for_release(self):
-        "Pause until the sensor is released."
+        """Pause until the sensor is released."""
         while self.pressed:
-            sleep(0.001)           
+            sleep(0.001)
 
     def wait_for_bump(self):
-        "Pause until the sensor is pressed and then released. If already pressed, then just wait for a release."
+        """Pause until the sensor is pressed and then released.
+
+        If already pressed, then just wait for a release.
+        """
         self.wait_for_press()
         self.wait_for_release()
 
 
 class IRProximity():
     """Configure an IR sensor in proximity mode."""
+
     def __init__(self, port, threshold=50):
+        """Initialize Infrared Sensor in Proximity mode."""
         self.port = port
         self.threshold = threshold
         self.path = get_sensor_or_motor_path('lego-sensor', self.port)
@@ -46,15 +56,18 @@ class IRProximity():
 
     @property
     def proximity(self):
-        """Return proximity value (0 = closest, 100 = farthest)"""
+        """Return proximity value (0 = closest, 100 = farthest)."""
         return read_int(self.value_file)
 
     @property
     def detected(self):
-        """Return True if detected object is closer than specified threshold. Returns false otherwise"""
+        """Return True if detected object is closer than specified threshold.
+
+        Return false otherwise
+        """
         return True if self.proximity <= self.threshold else False
 
     def wait_for_detection(self):
-        "Pause until the an object is detected."
+        """Pause until the an object is detected."""
         while not self.detected:
-            sleep(0.001)        
+            sleep(0.001)
