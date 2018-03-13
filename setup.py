@@ -1,11 +1,35 @@
-"""Setup."""
-from distutils.core import setup
+"""pypi compatible setup module.
+
+This setup is based on:
+https://packaging.python.org/tutorials/distributing-packages/
+"""
+from setuptools import setup
+from codecs import open
+from os import path
+
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(name='ev3devlight',
-      version='0.1',
+      version='0.1.0',
       description='Lightweight ev3dev Micropython and Python library.',
+      long_description=long_description,
       url='https://github.com/laurensvalk/ev3devlight',
       author='Laurens Valk',
       author_email='laurensvalk@gmail.com',
-      license='MIT',
+      classifiers=[
+            'Development Status :: 3 - Alpha',
+            'License :: OSI Approved :: MIT License',
+            'Programming Language :: Python :: 3',
+      ],
+      keywords='lego mindstorms ev3 micropython',
+      python_requires='>=3',
       packages=['ev3devlight'],
-      zip_safe=False)
+      project_urls={
+            'Bug Reports': 'https://github.com/laurensvalk/ev3devlight/issues',
+            'Questions': 'https://github.com/laurensvalk/ev3devlight/issues',
+            'Examples': 'https://github.com/laurensvalk/ev3devlight-examples',
+            'Source': 'https://github.com/laurensvalk/ev3devlight',
+      }
+      )
