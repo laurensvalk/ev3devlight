@@ -2,13 +2,13 @@
 
 This setup is based on:
 https://packaging.python.org/tutorials/distributing-packages/
-
-
+and
+http://docs.micropython.org/en/latest/wipy/reference/packages.html
 """
 from setuptools import setup
 from codecs import open
 from os import path
-
+import sdist_upip
 
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -28,7 +28,7 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     keywords='lego mindstorms ev3 micropython',
-    python_requires='>=3',
+    cmdclass={'sdist': sdist_upip.sdist},
     packages=['ev3devlight'],
     project_urls={
         'Bug Reports': 'https://github.com/laurensvalk/ev3devlight/issues',
