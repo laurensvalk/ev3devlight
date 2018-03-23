@@ -42,6 +42,43 @@ class Touch():
         self.wait_for_release()
 
 
+class Gyro():
+    """Configure a Gyro sensor."""
+
+    def __init__(self, port, read_rate=True, read_angle=False):
+        """Initialize Gyro Sensor in rate mode."""
+        self.port = port
+        self.path = get_sensor_or_motor_path('lego-sensor', self.port)
+        self.value_file = open(self.path + '/value0', 'rb')
+        # Set mode based on initialization arguments
+        if read_rate and read_angle:
+            self.set_rate_and_angle_mode()
+        elif read_angle:
+            self.set_angle_mode()
+        else:
+            self.set_rate_mode
+
+    @property
+    def value(self):
+        """Return sensor value."""
+        return read_int(self.value_file)
+
+    def set_rate_mode(self):
+        """Set Gyro to Rate mode."""
+        with open(self.path + '/mode', 'w') as f:
+            f.write('GYRO-RATE')
+
+    def set_angle_mode(self):
+        """Set Gyro to Angle mode."""
+        with open(self.path + '/mode', 'w') as f:
+            f.write('GYRO-ANG')
+
+    def set_rate_and_angle_mode(self):
+        """Set Gyro to Rate and Angle mode."""
+        with open(self.path + '/mode', 'w') as f:
+            f.write('GYRO-G&A')
+
+
 class IRProximity():
     """Configure an IR sensor in proximity mode."""
 
