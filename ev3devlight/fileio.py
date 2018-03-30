@@ -34,6 +34,7 @@ def write_str(outfile, value):
     outfile.write(value)
     outfile.flush()
 
+
 # Preconverted dutyvalue strings
 duty_int2str = [str(i) for i in range(-100, 101)]
 
@@ -43,6 +44,14 @@ def write_duty(dutyfile, value):
     duty = max(min(100, int(value)), -100)
     dutyfile.write(duty_int2str[duty+100])
     dutyfile.flush()
+
+
+def get_battery_path():
+    """Locate the battery path."""
+    if real_robot():
+        return '/sys/class/power_supply/lego-ev3-battery/'
+    else:
+        return 'hardware/power_supply/lego-ev3-battery/'
 
 
 def get_sensor_or_motor_path(device_type, port):

@@ -11,7 +11,7 @@ def make_files():
     def write_file_contents(basepath, files_and_contents):
         """Write a dictionary of filename/contents pairs to files."""
         for file_name, content in files_and_contents.items():
-            full_path = basepath + '/' + file_name
+            full_path = basepath + file_name
             makedirs(dirname(full_path), exist_ok=True)
             with open(full_path, "w") as dummy_file:
                 dummy_file.write(content)
@@ -73,16 +73,24 @@ def make_files():
         'value6': '0',
         'value7': '0'
     }
+
     # Make 4 identical motor directories, except for the address file
     for id in range(4):
-        motor_path = 'hardware/tacho-motor/motor' + str(id)
+        motor_path = 'hardware/tacho-motor/motor' + str(id) + '/'
         motor_files['address'] = 'ev3-ports:out' + chr(ord('A')+id)
         write_file_contents(motor_path, motor_files)
 
     # Make 4 identical sensor directories, except for the address file
     for id in range(4):
-        sensor_path = 'hardware/lego-sensor/sensor' + str(id)
+        sensor_path = 'hardware/lego-sensor/sensor' + str(id) + '/'
         sensor_files['address'] = 'ev3-ports:in' + str(id+1)
         write_file_contents(sensor_path, sensor_files)
+
+    # Basic power supply files
+    battery_files = {
+        'voltage_now': '8000000'
+    }
+    write_file_contents('hardware/power_supply/lego-ev3-battery/',
+                        battery_files)
 
     # TODO: Populate dummy files for power supply, leds, buttons, etc
