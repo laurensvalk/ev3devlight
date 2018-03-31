@@ -32,8 +32,10 @@ class Sensor(object):
     @mode.setter
     def mode(self, mode):
         """Write sensor mode string."""
-        with open(self.path + '/mode', 'w') as mode_file:
-            mode_file.write(mode)
+        if self.mode != mode:
+            # Write new mode only if it is different than the current one
+            with open(self.path + '/mode', 'w') as mode_file:
+                mode_file.write(mode)
 
     def pause(self):
         """Briefly do nothing."""
@@ -46,7 +48,7 @@ class Touch(Sensor):
     @property
     def pressed(self):
         """Return True if sensor is pressed, return False if released."""
-        return True if self.value0 else False
+        return bool(self.value0)
 
     @property
     def released(self):
@@ -151,7 +153,7 @@ class Proximity(Sensor):
 class Remote(Sensor):
     """Configure an IR sensor to read remote button status."""
 
-    # Numbed list of possible button presses
+    # Numbered list of possible button presses
     buttons = [
         'NONE',
         'LEFT_UP',
