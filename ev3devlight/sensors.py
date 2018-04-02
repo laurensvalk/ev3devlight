@@ -182,3 +182,18 @@ class Remote(Sensor):
     def pressed(self, button):
         """Check if specified remote button is currently pressed."""
         return self.button == button
+
+
+class Analog(Sensor):
+    """Configure an Analog Sensor."""
+
+    def __init__(self, port, scaling=1):
+        """Initialize analog sensor."""
+        self.scaling = scaling
+        # Basic sensor initialization
+        Sensor.__init__(self, port)
+
+    @property
+    def output(self):
+        """Return scaled sensor value."""
+        return self.value0/self.scaling
